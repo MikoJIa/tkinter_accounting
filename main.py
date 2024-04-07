@@ -12,8 +12,7 @@ cur.execute(
     """CREATE TABLE IF NOT EXISTS employees(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date DATE,
-    first_name TEXT,
-    last_name TEXT,
+    fio TEXT,
     place_of_work TEXT,
     job_title TEXT,
     salary_advance REAL,
@@ -26,15 +25,14 @@ conn.commit()
 
 
 def add_in_table():
-    list_get = [ent_date.get(), ent_first_name.get(),
+    list_get = [ent_date.get(), ent_fio.get(),
            ent_place_of_work.get(), ent_job_title.get(),
-           ent_salary_advance.get(), ent_salary.get(), ent_vacation_pay.get()]
+           ent_salary_advance.get(), ent_salary.get()]
     reply = messagebox.askyesno('Успех', 'Действительно добавить?')
     if all(list_get):
         if reply == True:
             date = ent_date.get()
-            first_name = ent_first_name.get()
-            last_name = ent_last_name.get()
+            fio = ent_fio.get()
             place_of_work = ent_place_of_work.get()
             job_title = ent_job_title.get()
             salary_advance = float(ent_salary_advance.get())
@@ -42,24 +40,23 @@ def add_in_table():
             vacation_pay = float(ent_vacation_pay.get())
             comment = ent_commit.get()
             cur.execute(
-                """INSERT INTO employees (date, first_name,
-                                          last_name, place_of_work, 
+                """INSERT INTO employees (date, fio,
+                                          place_of_work, 
                                           job_title, salary_advance, 
                                           salary, vacation_pay, 
                                           comment)
-                                          VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                          VALUES(?, ?, ?, ?, ?, ?, ?, ?)
                                           """,
-                (date, first_name, last_name, place_of_work, job_title, salary_advance, salary, vacation_pay, comment)
+                (date, fio, place_of_work, job_title, salary_advance, salary, vacation_pay, comment)
             )
             conn.commit()
             add_id = cur.lastrowid
-            tree.insert('', tk.END, values=(add_id, date, first_name,
-                                            last_name, place_of_work,
+            tree.insert('', tk.END, values=(add_id, date, fio,
+                                            place_of_work,
                                             job_title, salary_advance,
                                             salary, vacation_pay, comment))
             ent_date.delete(0, tk.END)
-            ent_first_name.delete(0, tk.END)
-            ent_last_name.delete(0, tk.END)
+            ent_fio.delete(0, tk.END)
             ent_place_of_work.delete(0, tk.END)
             ent_job_title.delete(0, tk.END)
             ent_salary_advance.delete(0, tk.END)
@@ -71,13 +68,11 @@ def add_in_table():
             messagebox.showinfo('Error', 'В другой раз!!!')
     else:
         messagebox.showinfo('Внимание!!!', 'Необходимо заполнить все обязательные поля\n'
-                                                        'Имя\n'
-                                                        'Фамилия\n'
+                                                        'ФИО\n'
                                                         'Место работы\n'
                                                         'Должность\n'
                                                         'Аванс\n'
                                                         'Зарплпта\n'
-                                                        'Отпускные\n'
                             )
 
 
@@ -104,22 +99,20 @@ def deffault_row_info(event):
         values = tree.item(item, 'values')
         ent_date.delete(0, tk.END)
         ent_date.insert(0, values[1])
-        ent_first_name.delete(0, tk.END)
-        ent_first_name.insert(0, values[2])
-        ent_last_name.delete(0, tk.END)
-        ent_last_name.insert(0, values[3])
+        ent_fio.delete(0, tk.END)
+        ent_fio.insert(0, values[2])
         ent_place_of_work.delete(0, tk.END)
-        ent_place_of_work.insert(0, values[4])
+        ent_place_of_work.insert(0, values[3])
         ent_job_title.delete(0, tk.END)
-        ent_job_title.insert(0, values[5])
+        ent_job_title.insert(0, values[4])
         ent_salary_advance.delete(0, tk.END)
-        ent_salary_advance.insert(0, values[6])
+        ent_salary_advance.insert(0, values[5])
         ent_salary.delete(0, tk.END)
-        ent_salary.insert(0, values[7])
+        ent_salary.insert(0, values[6])
         ent_vacation_pay.delete(0, tk.END)
-        ent_vacation_pay.insert(0, values[8])
+        ent_vacation_pay.insert(0, values[7])
         ent_commit.delete(0, tk.END)
-        ent_commit.insert(0, values[9])
+        ent_commit.insert(0, values[8])
 
 
 def update_data():
@@ -129,8 +122,7 @@ def update_data():
         return
     tran_id = tree.set(item_row, '#1')
     date = ent_date.get()
-    first_name = ent_first_name.get()
-    last_name = ent_last_name.get()
+    fio = ent_fio.get()
     place_of_work = ent_place_of_work.get()
     job_title = ent_job_title.get()
     salary_advance = ent_salary_advance.get()
@@ -138,24 +130,23 @@ def update_data():
     vacation_pay = ent_vacation_pay.get()
     comment = ent_commit.get()
     cur.execute(
-        """UPDATE employees SET date=?, first_name=?, last_name=?, 
+        """UPDATE employees SET date=?, fio=?, 
                                  place_of_work=?, job_title=?, salary_advance=?,
                                   salary=?, vacation_pay=?, comment=?
                                   WHERE id=?""",
-                    (date, first_name, last_name,
+                    (date, fio,
                                 place_of_work,
                                 job_title, salary_advance,
                                 salary, vacation_pay, comment, tran_id)
     )
     conn.commit()
-    tree.item(item_row, values=(tran_id, date, first_name, last_name, place_of_work, job_title, salary_advance,
+    tree.item(item_row, values=(tran_id, date, fio, place_of_work, job_title, salary_advance,
                                 salary, vacation_pay, comment))
 
 
 def clear_rows():
     ent_date.delete(0, tk.END)
-    ent_first_name.delete(0, tk.END)
-    ent_last_name.delete(0, tk.END)
+    ent_fio.delete(0, tk.END)
     ent_place_of_work.delete(0, tk.END)
     ent_job_title.delete(0, tk.END)
     ent_salary_advance.delete(0, tk.END)
@@ -167,11 +158,10 @@ def clear_rows():
 def search_data():
     keyword = ent_search.get()
     cur.execute(
-        """SELECT * FROM employees WHERE first_name LIKE ?
-         OR last_name LIKE ?
+        """SELECT * FROM employees WHERE fio LIKE ?
          OR place_of_work LIKE ?
          OR job_title LIKE ?
-        """, ('%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%')
+        """, ('%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%')
     )
     result = cur.fetchall()
     # conn.close()
@@ -204,15 +194,16 @@ lbl_date.grid(row=0, column=0, sticky='e')
 ent_date = DateEntry(left_frame, width=25, font='Arial 14', relief=tk.SUNKEN, borderwidth=3, date_pattern='dd.mm.yy')
 ent_date.grid(row=0, column=1)
 
-lbl_first_name = tk.Label(left_frame, text='Имя', font=('Arial', 15), bg='silver')
-lbl_first_name.grid(row=1, column=0, sticky='e')
-ent_first_name = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
-ent_first_name.grid(row=1, column=1)
+lbl_fio = tk.Label(left_frame, text='ФИО', font=('Arial', 15), bg='silver')
+lbl_fio.grid(row=1, column=0, sticky='e')
+ent_fio = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
+ent_fio.grid(row=1, column=1)
 
-lbl_last_name = tk.Label(left_frame, text='Фамилия', font=('Arial', 15), bg='silver')
-lbl_last_name.grid(row=2, column=0, sticky='e')
-ent_last_name = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
-ent_last_name.grid(row=2, column=1)
+
+# lbl_last_name = tk.Label(left_frame, text='Фамилия', font=('Arial', 15), bg='silver')
+# lbl_last_name.grid(row=2, column=0, sticky='e')
+# ent_last_name = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
+# ent_last_name.grid(row=2, column=1)
 
 lbl_place_of_work = tk.Label(left_frame, text='Место работы', font=('Arial', 15), bg='silver')
 lbl_place_of_work.grid(row=3, column=0)
@@ -229,7 +220,7 @@ lbl_salary_advance.grid(row=5, column=0, sticky='e')
 ent_salary_advance = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
 ent_salary_advance.grid(row=5, column=1)
 
-lbl_salary = tk.Label(left_frame, text='Зарплата', font=('Arial', 15), bg='silver')
+lbl_salary = tk.Label(left_frame, text='Ставка', font=('Arial', 15), bg='silver')
 lbl_salary.grid(row=6, column=0, sticky='e')
 ent_salary = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
 ent_salary.grid(row=6, column=1)
@@ -288,8 +279,8 @@ data_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 tree = ttk.Treeview(data_frame)
 tree.pack(side=tk.LEFT, fill=tk.BOTH)
-tree['columns'] = ('id', 'date', 'first_name',
-                   'last_name', 'place_of_work',
+tree['columns'] = ('id', 'date', 'fio',
+                   'place_of_work',
                    'job_title', 'salary_advance',
                    'salary', 'vacation_pay', 'comment')
 
@@ -306,25 +297,23 @@ tree.configure(yscrollcommand=scrollbar.set)
 tree.column('#0', width=0)
 tree.column('id', anchor='w', width=30)
 tree.column('date', anchor='w', width=60)
-tree.column('first_name', anchor='w', width=100)
-tree.column('last_name', anchor='w', width=100)
+tree.column('fio', anchor='w', width=200)
 tree.column('place_of_work', anchor='w', width=150)
 tree.column('job_title', anchor='w', width=80)
 tree.column('salary_advance', anchor='w', width=60)
 tree.column('salary', anchor='w', width=60)
-tree.column('vacation_pay', anchor='w', width=60)
+tree.column('vacation_pay', anchor='w', width=80)
 tree.column('comment', anchor='w', width=300)
 # Название колонок
 tree.heading('#0', text='')
 tree.heading('id', text='ID')
 tree.heading('date', text='Дата')
-tree.heading('first_name', text='Имя')
-tree.heading('last_name', text='Фамилия')
+tree.heading('fio', text='ФИО')
 tree.heading('place_of_work', text='Место работы')
 tree.heading('job_title', text='Должность')
-tree.heading('salary_advance', text='Аванс/бел.р')
-tree.heading('salary', text='Зарплата/бел.р')
-tree.heading('vacation_pay', text='Отпускные/бел.р')
+tree.heading('salary_advance', text='Аванс')
+tree.heading('salary', text='Ставка')
+tree.heading('vacation_pay', text='Отпускные')
 tree.heading('comment', text='Описание')
 # Получение данных из ТАБЛИЦЫ
 cur.execute(
