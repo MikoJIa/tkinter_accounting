@@ -15,9 +15,10 @@ cur.execute(
     fio TEXT,
     place_of_work TEXT,
     job_title TEXT,
-    salary_advance REAL,
-    salary REAL,
-    vacation_pay REAL,
+    salary_advance TEXT,
+    salary TEXT,
+    stay_salary TEXT,
+    vacation_pay TEXT,
     comment TEXT
     )
 """)
@@ -25,9 +26,7 @@ conn.commit()
 
 
 def add_in_table():
-    list_get = [ent_date.get(), ent_fio.get(),
-           ent_place_of_work.get(), ent_job_title.get(),
-           ent_salary_advance.get(), ent_salary.get()]
+    list_get = [ent_date.get(), ent_fio.get()]
     reply = messagebox.askyesno('Успех', 'Действительно добавить?')
     if all(list_get):
         if reply == True:
@@ -35,32 +34,34 @@ def add_in_table():
             fio = ent_fio.get()
             place_of_work = ent_place_of_work.get()
             job_title = ent_job_title.get()
-            salary_advance = float(ent_salary_advance.get())
-            salary = float(ent_salary.get())
-            vacation_pay = float(ent_vacation_pay.get())
+            salary_advance = ent_salary_advance.get()
+            salary = ent_salary.get()
+            stay_salary = ent_stay_salary.get()
+            vacation_pay = ent_vacation_pay.get()
             comment = ent_commit.get()
             cur.execute(
                 """INSERT INTO employees (date, fio,
                                           place_of_work, 
-                                          job_title, salary_advance, 
-                                          salary, vacation_pay, 
+                                          job_title, salary_advance, salary, 
+                                          stay_salary, vacation_pay, 
                                           comment)
-                                          VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+                                          VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
                                           """,
-                (date, fio, place_of_work, job_title, salary_advance, salary, vacation_pay, comment)
+                (date, fio, place_of_work, job_title, salary_advance, salary, stay_salary, vacation_pay, comment)
             )
             conn.commit()
             add_id = cur.lastrowid
             tree.insert('', tk.END, values=(add_id, date, fio,
                                             place_of_work,
-                                            job_title, salary_advance,
-                                            salary, vacation_pay, comment))
+                                            job_title, salary_advance, salary,
+                                            stay_salary, vacation_pay, comment))
             ent_date.delete(0, tk.END)
             ent_fio.delete(0, tk.END)
             ent_place_of_work.delete(0, tk.END)
             ent_job_title.delete(0, tk.END)
             ent_salary_advance.delete(0, tk.END)
             ent_salary.delete(0, tk.END)
+            ent_stay_salary.delete(0, tk.END)
             ent_vacation_pay.delete(0, tk.END)
             ent_commit.delete(0, tk.END)
             messagebox.showinfo('Успех', 'Новая информация добавлена')
@@ -69,10 +70,6 @@ def add_in_table():
     else:
         messagebox.showinfo('Внимание!!!', 'Необходимо заполнить все обязательные поля\n'
                                                         'ФИО\n'
-                                                        'Место работы\n'
-                                                        'Должность\n'
-                                                        'Аванс\n'
-                                                        'Зарплпта\n'
                             )
 
 
@@ -109,10 +106,12 @@ def deffault_row_info(event):
         ent_salary_advance.insert(0, values[5])
         ent_salary.delete(0, tk.END)
         ent_salary.insert(0, values[6])
+        ent_stay_salary.delete(0, tk.END)
+        ent_stay_salary.insert(0, values[7])
         ent_vacation_pay.delete(0, tk.END)
-        ent_vacation_pay.insert(0, values[7])
+        ent_vacation_pay.insert(0, values[8])
         ent_commit.delete(0, tk.END)
-        ent_commit.insert(0, values[8])
+        ent_commit.insert(0, values[9])
 
 
 def update_data():
@@ -127,21 +126,22 @@ def update_data():
     job_title = ent_job_title.get()
     salary_advance = ent_salary_advance.get()
     salary = ent_salary.get()
+    stay_salary = ent_stay_salary.get()
     vacation_pay = ent_vacation_pay.get()
     comment = ent_commit.get()
     cur.execute(
         """UPDATE employees SET date=?, fio=?, 
-                                 place_of_work=?, job_title=?, salary_advance=?,
-                                  salary=?, vacation_pay=?, comment=?
+                                 place_of_work=?, job_title=?, salary_advance=?, salary=?,
+                                  stay_salary=?, vacation_pay=?, comment=?
                                   WHERE id=?""",
                     (date, fio,
                                 place_of_work,
-                                job_title, salary_advance,
-                                salary, vacation_pay, comment, tran_id)
+                                job_title, salary_advance, salary,
+                                stay_salary, vacation_pay, comment, tran_id)
     )
     conn.commit()
-    tree.item(item_row, values=(tran_id, date, fio, place_of_work, job_title, salary_advance,
-                                salary, vacation_pay, comment))
+    tree.item(item_row, values=(tran_id, date, fio, place_of_work, job_title, salary_advance, salary,
+                                stay_salary, vacation_pay, comment))
 
 
 def clear_rows():
@@ -151,6 +151,7 @@ def clear_rows():
     ent_job_title.delete(0, tk.END)
     ent_salary_advance.delete(0, tk.END)
     ent_salary.delete(0, tk.END)
+    ent_stay_salary.delete(0, tk.END)
     ent_vacation_pay.delete(0, tk.END)
     ent_commit.delete(0, tk.END)
 
@@ -206,24 +207,29 @@ ent_fio.grid(row=1, column=1)
 # ent_last_name.grid(row=2, column=1)
 
 lbl_place_of_work = tk.Label(left_frame, text='Место работы', font=('Arial', 15), bg='silver')
-lbl_place_of_work.grid(row=3, column=0)
+lbl_place_of_work.grid(row=2, column=0)
 ent_place_of_work = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
-ent_place_of_work.grid(row=3, column=1)
+ent_place_of_work.grid(row=2, column=1)
 
 lbl_job_title = tk.Label(left_frame, text='Должность', font=('Arial', 15), bg='silver')
-lbl_job_title.grid(row=4, column=0, sticky='e')
+lbl_job_title.grid(row=3, column=0, sticky='e')
 ent_job_title = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
-ent_job_title.grid(row=4, column=1)
+ent_job_title.grid(row=3, column=1)
 
 lbl_salary_advance = tk.Label(left_frame, text='Аванс', font=('Arial', 15), bg='silver')
-lbl_salary_advance.grid(row=5, column=0, sticky='e')
+lbl_salary_advance.grid(row=4, column=0, sticky='e')
 ent_salary_advance = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
-ent_salary_advance.grid(row=5, column=1)
+ent_salary_advance.grid(row=4, column=1)
 
-lbl_salary = tk.Label(left_frame, text='Ставка', font=('Arial', 15), bg='silver')
-lbl_salary.grid(row=6, column=0, sticky='e')
+lbl_salary = tk.Label(left_frame, text='Зарплата', font=('Arial', 15), bg='silver')
+lbl_salary.grid(row=5, column=0, sticky='e')
 ent_salary = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
-ent_salary.grid(row=6, column=1)
+ent_salary.grid(row=5, column=1)
+
+lbl_stay_salary = tk.Label(left_frame, text='Ставка', font=('Arial', 15), bg='silver')
+lbl_stay_salary.grid(row=6, column=0, sticky='e')
+ent_stay_salary = tk.Entry(left_frame, width=25, font='Arial 15', relief=tk.SUNKEN, borderwidth=3)
+ent_stay_salary.grid(row=6, column=1)
 
 lbl_vacation_pay = tk.Label(left_frame, text='Отпускные', font=('Arial', 15), bg='silver')
 lbl_vacation_pay.grid(row=7, column=0, sticky='e')
@@ -281,8 +287,8 @@ tree = ttk.Treeview(data_frame)
 tree.pack(side=tk.LEFT, fill=tk.BOTH)
 tree['columns'] = ('id', 'date', 'fio',
                    'place_of_work',
-                   'job_title', 'salary_advance',
-                   'salary', 'vacation_pay', 'comment')
+                   'job_title', 'salary_advance', 'salary',
+                   'stay_salary', 'vacation_pay', 'comment')
 
 
 scrollbar = ttk.Scrollbar(data_frame, orient=tk.VERTICAL)
@@ -302,8 +308,9 @@ tree.column('place_of_work', anchor='w', width=150)
 tree.column('job_title', anchor='w', width=80)
 tree.column('salary_advance', anchor='w', width=60)
 tree.column('salary', anchor='w', width=60)
+tree.column('stay_salary', anchor='w', width=60)
 tree.column('vacation_pay', anchor='w', width=80)
-tree.column('comment', anchor='w', width=300)
+tree.column('comment', anchor='w', width=200)
 # Название колонок
 tree.heading('#0', text='')
 tree.heading('id', text='ID')
@@ -312,7 +319,8 @@ tree.heading('fio', text='ФИО')
 tree.heading('place_of_work', text='Место работы')
 tree.heading('job_title', text='Должность')
 tree.heading('salary_advance', text='Аванс')
-tree.heading('salary', text='Ставка')
+tree.heading('salary', text='Зарплата')
+tree.heading('stay_salary', text='Ставка')
 tree.heading('vacation_pay', text='Отпускные')
 tree.heading('comment', text='Описание')
 # Получение данных из ТАБЛИЦЫ
